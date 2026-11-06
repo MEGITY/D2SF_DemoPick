@@ -136,7 +136,7 @@
 
 기록 문서에는 정리 전 경로가 남아 있습니다. `runs/e3_lift/e3_detect.csv`는 `runs/e3/e3_detect_lift.csv`이고, `runs/e3_lift/e3_damage.*`는 `runs/e3/e3_damage.*`입니다. `run_e3.sh`는 실행 당시 명령을 그대로 보존한 파일이라 경로가 실행 환경에 고정되어 있습니다.
 
-## 다시 돌려 보기
+## 재현 방법
 
 **환경:** Python 3.10, Linux 또는 WSL. Windows에서는 robosuite 1.5.1이 `mujoco.dll` 오류로 시뮬레이터 평가가 되지 않았고, `73_e3_damage.py`도 경로 구분자 때문에 Linux에서 실행해야 합니다.
 
@@ -194,7 +194,7 @@ mkdir -p work/e3d/e3_lift && tar xzf runs/e3/e3_lift_runs_jsonl.tgz -C work/e3d/
 
 `results/e1_models/*.pkl`은 scikit-learn 1.7.2로 저장한 pickle입니다. pickle은 불러올 때 코드를 실행할 수 있으니 신뢰할 수 있는 경로에서 받은 파일만 여세요.
 
-### 공개 전 재현 확인 (2026-11-06)
+### 공개 전 재현 확인
 
 | 대상 | 방법 | 결과 |
 |---|---|---|
