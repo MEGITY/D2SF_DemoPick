@@ -10,11 +10,18 @@
 
 공개 데이터 [robomimic](https://arxiv.org/abs/2108.03298)의 혼합 숙련도 시연 600개(Lift, Square 각 300개)로 2026년 11월 3~4일에 가설 3개를 시험했습니다. 두 개는 반박됐습니다. CPU만으로 정책 57개를 학습해 robosuite 시뮬레이터에서 평가했고, 실험 코드 작성과 실행에는 AI 코딩 도구를 썼습니다.
 
+**수치 읽는 법**
+- **AUROC (0~1):** 점수가 두 집단을 얼마나 잘 가르는지 나타냅니다. 0.5는 우연 수준, 1.0은 완벽한 구분입니다. 0.987은 숙련도 낮은 시연과 높은 시연을 하나씩 뽑았을 때 낮은 쪽이 더 나쁜 점수를 받을 확률이 약 98.7%라는 뜻입니다.
+- **성공률:** 학습한 정책을 시뮬레이터에서 실행해 과제를 끝낸 비율입니다. 1회 실행을 롤아웃이라고 하고, 시드는 학습 난수값입니다. %p는 성공률끼리의 차이입니다.
+- **p값:** 실제로 차이가 없을 때 이만큼 큰 차이가 우연히 나올 확률입니다. 작을수록 우연으로 보기 어렵고, 보통 0.05 미만을 기준으로 봅니다. p값이 크다고 두 방법이 같다는 뜻은 아닙니다.
+- **95% 구간:** 실제 값이 있을 법한 범위입니다. 좁을수록 정밀한 측정입니다.
+- **스피어만 상관 (-1~1):** 점수 순서가 숙련도 순서와 얼마나 같은지 나타냅니다. 1은 완전히 일치, 0은 관계없음입니다.
+
 | | 가설 | 결과 | 그래서 정한 것 |
 |---|---|---|---|
-| E0 | 값싼 점수는 품질을 못 가린다 | **반박.** 숙련도 구분 AUROC Lift 0.987, Square 0.851 | 더 정확한 점수는 제품이 아니다 |
-| E1 | 남길 시연을 고르면 성능이 오른다 | **확인.** 같은 개수에서 무작위 대비 Lift 38→62%, Square 3→19% | 선별이 핵심이고, 값싼 점수로 된다 |
-| E3 | 값싼 점수가 놓친 결함이 학습을 망친다 | **반박.** 결함 20%를 섞어도 성공률이 떨어진 조건 없음 | 결함이 아니라 숙련도에 집중한다 |
+| 가설 1 | 값싼 점수는 품질을 못 가린다 | **반박.** 숙련도 구분 AUROC Lift 0.987, Square 0.851 | 더 정확한 점수는 제품이 아니다 |
+| 가설 2 | 남길 시연을 고르면 성능이 오른다 | **확인.** 같은 개수에서 무작위 대비 Lift 38→62%, Square 3→19% | 선별이 핵심이고, 값싼 점수로 된다 |
+| 가설 3 | 값싼 점수가 놓친 결함이 학습을 망친다 | **반박.** 결함 20%를 섞어도 성공률이 떨어진 조건 없음 | 결함이 아니라 숙련도에 집중한다 |
 
 > **결과를 읽을 때 주의할 점:** 저희 정책은 CPU로 돌리기 위해 원논문보다 작고 약합니다. 300개 전체 학습 성공률이 원논문보다 크게 낮습니다(아래 표). 그래서 그래프에 보이는 "전체 300개보다 선별한 절반이 낫다"는 **결론으로 쓰지 않고**, 같은 개수끼리의 비교만 결론으로 씁니다.
 
@@ -32,16 +39,18 @@
 └── demopick-exp/
     ├── notes/
     │   ├── experiment_log.md   시간순 실험 기록 (실패 포함)
-    │   ├── e3_defect_prereg.md E3 사전 고정과 결과
+    │   ├── e3_defect_prereg.md 가설 3 사전 고정과 결과
     │   └── setup_notes.md      초기 작업 메모, CUPID 저장소 확인 사항
     ├── scripts/                실험 코드 (번호순 실행)
-    ├── results/                Lift E0·E1 결과
-    ├── runs/square/results/    Square E0·E1 결과
-    ├── runs/e3/                E3 결과
+    ├── results/                Lift 가설 1·2 결과
+    ├── runs/square/results/    Square 가설 1·2 결과
+    ├── runs/e3/                가설 3 결과
     └── tests/make_fake_hdf5.py 동작 확인용 가짜 데이터 (수치 보고에 쓰지 않음)
 ```
 
-원본 데이터(hdf5)는 공개 데이터라 저장소에 넣지 않았습니다. E3 학습 정책은 저장하지 않았고 실행별 결과(`e3_lift_runs_jsonl.tgz`)만 있습니다.
+원본 데이터(hdf5)는 공개 데이터라 저장소에 넣지 않았습니다. 가설 3 학습 정책은 저장하지 않았고 실행별 결과(`e3_lift_runs_jsonl.tgz`)만 있습니다.
+
+파일 이름과 실험 기록에는 예전 표기가 남아 있습니다. `E0`(`e0_`)은 가설 1, `E1`(`e1_`)은 가설 2, `E3`(`e3_`)은 가설 3입니다. `E2`는 계획만 하고 실행하지 않은 실험이라 번호가 비어 있습니다.
 
 ## 실험과 결과
 
@@ -68,7 +77,7 @@
 
 같은 초기 상태끼리 짝지은 부호 검정 결과, 값싼 점수 선별은 무작위보다 성공률이 높았습니다(Lift p=0.001, Square p=0.003). 숙련도 라벨 선별과는 차이를 찾지 못했습니다(Lift p=0.64, Square p=1.0).
 
-![Lift E1 결과](demopick-exp/results/figures/e1_cpu_success.png)
+![Lift 가설 2 결과](demopick-exp/results/figures/e1_cpu_success.png)
 
 ### 가설3: 값싼 점수가 놓친 결함이 학습을 망치는가
 
@@ -97,17 +106,17 @@
 **통계와 설계의 한계**
 - 시뮬레이션 2과제, 단순 MLP 정책, 시드 3개입니다. Square는 성공률이 20% 이하라 ±10%p 차이를 가리지 못합니다.
 - 시드마다 같은 초기 상태 30개를 다시 쓰므로, 합산 90회는 완전히 독립이 아닙니다. 구간이 다소 좁게 보일 수 있습니다.
-- E3의 결함은 인공으로 만들었고 20%만 섞었습니다.
+- 가설 3의 결함은 인공으로 만들었고 20%만 섞었습니다.
 
 **사전 계획에서 달라진 점**
-- E3 사전 기록은 짝지은 부호 검정을 쓰기로 했지만, 실제로는 합산 성공 수의 Fisher 정확 검정을 썼습니다. 집계 시점에 롤아웃 단위 기록이 없었기 때문입니다(`73_e3_damage.py` 상단 주석). 이 저장소의 p값 중 E3 값은 Fisher 검정, E1 값은 부호 검정입니다.
-- E1은 결과를 보기 전에 규모를 줄였습니다. 남기는 비율 2개·롤아웃 50회에서 비율 1개·롤아웃 30회로 바꿨습니다. 이전 설정의 `run_e1_cpu.sh`는 결과 없이 종료되어 쓰지 않았습니다.
-- 처음 계획한 CUPID 비교와 E2(경량 채점기)는 GPU가 없어 실행하지 않았습니다. `12_demopick_dev_plan.md`는 이 변경 전의 계획이고, `20_heuristic_to_curation.py`는 보고한 결과에 쓰이지 않았습니다.
+- 가설 3 사전 기록은 짝지은 부호 검정을 쓰기로 했지만, 실제로는 합산 성공 수의 Fisher 정확 검정을 썼습니다. 집계 시점에 롤아웃 단위 기록이 없었기 때문입니다(`73_e3_damage.py` 상단 주석). 이 저장소의 p값 중 가설 3 값은 Fisher 검정, 가설 2 값은 부호 검정입니다.
+- 가설 2는 결과를 보기 전에 규모를 줄였습니다. 남기는 비율 2개·롤아웃 50회에서 비율 1개·롤아웃 30회로 바꿨습니다. 이전 설정의 `run_e1_cpu.sh`는 결과 없이 종료되어 쓰지 않았습니다.
+- 처음 계획한 CUPID 비교와 경량 채점기 실험는 GPU가 없어 실행하지 않았습니다. `12_demopick_dev_plan.md`는 이 변경 전의 계획이고, `20_heuristic_to_curation.py`는 보고한 결과에 쓰이지 않았습니다.
 
 **결과를 본 뒤 고친 것**
 - Lift의 `t_lift`, `drop_flag`, `post_lift_len` 판정 기준을 고쳤습니다. 합성 AUROC를 보기 전, 특징 추출 단계에서 고쳤습니다.
 - Square의 `t_lift`, `wasted_grasp` 판정 기준을 결과를 본 뒤 고쳤습니다. 수정 전 값은 `runs/square/results/*_v1_beforefix.*`에 있습니다.
-- 위 수정은 모두 값싼 점수(`composite_A`)에 쓰이지 않는 특징이라 E0·E1·E3의 값싼 점수 결과에는 영향이 없습니다.
+- 위 수정은 모두 값싼 점수(`composite_A`)에 쓰이지 않는 특징이라 가설 1·2·3의 값싼 점수 결과에는 영향이 없습니다.
 
 **재현성**
 - 다른 환경에서 Lift 특징을 다시 뽑으면 1e-16 수준 차이를 빼고 같았고, `heuristic_k0.5_s0` 정책은 같은 21/30이 나왔습니다.
@@ -117,13 +126,13 @@
 
 | 수치 | 파일 (`demopick-exp/` 기준) |
 |---|---|
-| E0 합성 AUROC | `results/e0_summary.json`, `runs/square/results/e0_summary.json` |
-| E0 지표별 AUROC | `results/e0_feature_auroc.csv`, `runs/square/results/e0_feature_auroc.csv` |
-| E1 성공률, p값 | `results/e1_cpu_summary.json`, `runs/square/results/e1_cpu_summary.json` |
-| E1 시드별 결과 | `results/e1_cpu_runs.csv`, `results/e1_rollouts/`, `results/e1_models/` |
-| E3 탐지력 | `runs/e3/e3_detect_lift.csv`, `runs/e3/e3_detect_square.csv` |
-| E3 성공률, p값 | `runs/e3/e3_damage.json`, `runs/e3/e3_damage.csv` |
-| E3 숙련도 낮은 시연 수 | `runs/e3/run.log` (`skill_mix`) |
+| 가설 1 합성 AUROC | `results/e0_summary.json`, `runs/square/results/e0_summary.json` |
+| 가설 1 지표별 AUROC | `results/e0_feature_auroc.csv`, `runs/square/results/e0_feature_auroc.csv` |
+| 가설 2 성공률, p값 | `results/e1_cpu_summary.json`, `runs/square/results/e1_cpu_summary.json` |
+| 가설 2 시드별 결과 | `results/e1_cpu_runs.csv`, `results/e1_rollouts/`, `results/e1_models/` |
+| 가설 3 탐지력 | `runs/e3/e3_detect_lift.csv`, `runs/e3/e3_detect_square.csv` |
+| 가설 3 성공률, p값 | `runs/e3/e3_damage.json`, `runs/e3/e3_damage.csv` |
+| 가설 3 숙련도 낮은 시연 수 | `runs/e3/run.log` (`skill_mix`) |
 
 기록 문서에는 정리 전 경로가 남아 있습니다. `runs/e3_lift/e3_detect.csv`는 `runs/e3/e3_detect_lift.csv`이고, `runs/e3_lift/e3_damage.*`는 `runs/e3/e3_damage.*`입니다. `run_e3.sh`는 실행 당시 명령을 그대로 보존한 파일이라 경로가 실행 환경에 고정되어 있습니다.
 
@@ -142,7 +151,7 @@ cd demopick-exp
 
 스크립트는 현재 폴더의 `results/`에 읽고 쓰므로, 공개된 결과를 덮어쓰지 않도록 `work/` 아래에서 실행합니다.
 
-**E0** (GPU·시뮬레이터 불필요, 수십 초)
+**가설 1** (GPU·시뮬레이터 불필요, 수십 초)
 ```bash
 mkdir -p work/lift && cd work/lift
 python ../../scripts/01_inspect_hdf5.py --hdf5 "$LIFT"
@@ -150,18 +159,18 @@ python ../../scripts/10_extract_features.py --hdf5 "$LIFT"
 python ../../scripts/11_e0_skill_vs_heuristic.py
 ```
 
-**E1** (위 폴더에서 이어서. 학습과 시뮬레이터 평가로 오래 걸림)
+**가설 2** (위 폴더에서 이어서. 학습과 시뮬레이터 평가로 오래 걸림)
 ```bash
 python ../../scripts/61_e1_queue.py --hdf5 "$LIFT" --budget 100000
 python ../../scripts/62_e1_summary.py
 ```
-Square는 `work/square`에서 `$SQUARE`로 E0를 실행한 뒤, 사전 고정 설정으로 돌립니다.
+Square는 `work/square`에서 `$SQUARE`로 가설 1 단계를 실행한 뒤, 사전 고정 설정으로 돌립니다.
 ```bash
 python ../../scripts/61_e1_queue.py --hdf5 "$SQUARE" --budget 100000 --keeps 0.3334 --epochs 150 --horizon 500 --act-chunk 8 --act-exec 4
 E1_TASK="Square MH" python ../../scripts/62_e1_summary.py
 ```
 
-**E3 탐지** (시뮬레이터 불필요)
+**가설 3 탐지** (시뮬레이터 불필요)
 ```bash
 mkdir -p work/e3 && cd work/e3
 for T in lift square; do
@@ -189,11 +198,11 @@ mkdir -p work/e3d/e3_lift && tar xzf runs/e3/e3_lift_runs_jsonl.tgz -C work/e3d/
 
 | 대상 | 방법 | 결과 |
 |---|---|---|
-| E0 특징·AUROC (2과제) | 원본 데이터에서 재계산 | 특징 최대 차이 1.1e-16, AUROC 동일 |
-| E1 집계 (2과제) | 저장된 정책·롤아웃에서 재집계 | 성공률, 구간, p값 동일 |
-| E3 탐지 (2과제) | 결함 주입부터 재계산 | 표 동일, 결함 시연 60개 동일 |
-| E3 성공률 집계 | 저장된 실행 결과에서 재집계 | 표 동일 |
-| E1 정책 1개 (`heuristic_k0.5_s0`) | WSL Ubuntu에서 재학습·시뮬레이터 평가 | 같은 21/30, 같은 학습 구성(worse 5·okay 51·better 94) |
+| 가설 1 특징·AUROC (2과제) | 원본 데이터에서 재계산 | 특징 최대 차이 1.1e-16, AUROC 동일 |
+| 가설 2 집계 (2과제) | 저장된 정책·롤아웃에서 재집계 | 성공률, 구간, p값 동일 |
+| 가설 3 탐지 (2과제) | 결함 주입부터 재계산 | 표 동일, 결함 시연 60개 동일 |
+| 가설 3 성공률 집계 | 저장된 실행 결과에서 재집계 | 표 동일 |
+| 가설 2 정책 1개 (`heuristic_k0.5_s0`) | WSL Ubuntu에서 재학습·시뮬레이터 평가 | 같은 21/30, 같은 학습 구성(worse 5·okay 51·better 94) |
 
 전체 정책 57개 재학습은 이번 확인에서 다시 돌리지 않았습니다.
 
