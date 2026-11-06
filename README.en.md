@@ -25,6 +25,24 @@ We tested three hypotheses on November 3–4, 2026, using 600 mixed-skill demons
 
 The paper trains a 1024×1024 network for 200k steps and reports the best success rate during training (50 rollouts). We evaluate a 256×256 network in its final state (30 rollouts).
 
+## Repository layout
+
+```
+├── 12_demopick_dev_plan.md   Initial experiment plan (actual work diverged from it; Korean)
+└── demopick-exp/
+    ├── notes/
+    │   ├── experiment_log.md   Chronological log, including failures (Korean)
+    │   ├── e3_defect_prereg.md E3 pre-registration and results (Korean)
+    │   └── setup_notes.md      Early working notes, findings from the CUPID repo (Korean)
+    ├── scripts/                Experiment code (run in numeric order)
+    ├── results/                Lift E0 and E1 results
+    ├── runs/square/results/    Square E0 and E1 results
+    ├── runs/e3/                E3 results
+    └── tests/make_fake_hdf5.py Fake data for smoke tests (never used for reported numbers)
+```
+
+The raw hdf5 data is public and not included. E3 trained policies were not saved; only per-run results are (`e3_lift_runs_jsonl.tgz`).
+
 ## Experiments and results
 
 Common setup: 6 operators × 50 demos each, 3 skill levels. The cheap score (`composite_A`) is the mean z-score of 7 metrics: length, jerk, high-frequency ratio, idle ratio, gripper switches, path length, and grasp timing. All metrics were set to "larger is worse" before looking at the data, with no weighting.
@@ -95,25 +113,7 @@ We list these so you can check that nothing was adjusted to look better. The chr
 - Re-extracting Lift features in a different environment matched apart from differences around 1e-16, and the `heuristic_k0.5_s0` policy gave the same 21/30.
 - Training on all 300 gave 39/90 and 40/90, a one-rollout difference, which is why the all-300 rate is written as 43–44%.
 
-## Repository layout
-
-```
-├── 12_demopick_dev_plan.md   Initial experiment plan (actual work diverged from it; Korean)
-└── demopick-exp/
-    ├── notes/
-    │   ├── experiment_log.md   Chronological log, including failures (Korean)
-    │   ├── e3_defect_prereg.md E3 pre-registration and results (Korean)
-    │   └── setup_notes.md      Early working notes, findings from the CUPID repo (Korean)
-    ├── scripts/                Experiment code (run in numeric order)
-    ├── results/                Lift E0 and E1 results
-    ├── runs/square/results/    Square E0 and E1 results
-    ├── runs/e3/                E3 results
-    └── tests/make_fake_hdf5.py Fake data for smoke tests (never used for reported numbers)
-```
-
-The raw hdf5 data is public and not included. E3 trained policies were not saved; only per-run results are (`e3_lift_runs_jsonl.tgz`).
-
-### Where each number comes from
+## Where each number comes from
 
 | Number | File (relative to `demopick-exp/`) |
 |---|---|
